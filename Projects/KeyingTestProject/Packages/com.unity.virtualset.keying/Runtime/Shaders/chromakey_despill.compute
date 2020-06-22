@@ -1,0 +1,128 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+Texture2D<float4> FG;
+Texture2D<float4> garbageMask;
+int type;
+
+int use_despill;
+int use_gmask;
+int use_invert_key;
+int use_invert_gmask;
+
+RWTexture2D<float4> resultTex;
+SamplerState _LinearClamp;
+SamplerState _LinearRepeat;
+SamplerState _PointClamp;
+SamplerState _PointRepeat;
+
+float3 input_keyin_color;
+float p1;
+float p2;
+float p3;
+float despill_amount;
+
+float3 despill_blue(float3 color, float amount)
+{
+    float3 result = color;
+    float3 suppressed = color;
+    
+    suppressed.g = min((color.r+color.b)*0.5, suppressed.g);
+    
+    result = lerp( color, suppressed, amount );
+    return result;
+}
+
+float3 rgb2hsv(float3 rgb)
+{
+	float Cmax = max(rgb.r, max(rgb.g, rgb.b));
+	float Cmin = min(rgb.r, min(rgb.g, rgb.b));
+	float delta = Cmax - Cmin;
+
+	float3 hsv = float3(0., 0., Cmax);
+
+	if (Cmax > Cmin)
+	{
+		hsv.y = delta / Cmax;
+
+		if (rgb.r == Cmax)
+			hsv.x = (rgb.g - rgb.b) / delta;
+		else
+		{
+			if (rgb.g == Cmax)
+				hsv.x = 2. + (rgb.b - rgb.r) / delta;
+			else
+				hsv.x = 4. + (rgb.r - rgb.g) / delta;
+		}
+		hsv.x = frac(hsv.x / 6.);
+	}
+	return hsv;
+}
+
+float chromaKey(float3 keyin_color, float3 front_color)
+{
+	float3 weights = float3(p1, p2, p3);
+
+	float3 front_hsv = rgb2hsv(front_color);
+	float3 keyin_color_hsv = rgb2hsv(keyin_color);
+	float dist = length(weights * (keyin_color_hsv - front_hsv));
+	return 1. - clamp(3. * dist - 1.5, 0., 1.);
+}
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+	float w, h;
+	resultTex.GetDimensions(w, h);
+	float2 uv = float2(id.x / w, id.y / h);
+	float3 color_orig = FG.SampleLevel(_LinearClamp, uv, 0).rgb;
+	float3 color = color_orig;
+	if ( use_despill ) // use despill
+	{
+	    color = despill_blue(color_orig, despill_amount );
+	}
+	float incrustation = chromaKey(input_keyin_color, color_orig);
+
+	if ( use_invert_key )
+	{
+	    incrustation = 1.0 - incrustation;
+	}
+
+	float gmask = 0.0f;
+	if ( use_gmask ) // use gmask
+	{ 
+        gmask =  garbageMask.SampleLevel( _LinearClamp, uv, 0).r;
+	    if ( use_invert_gmask )
+	    {
+	       gmask = 1.0 - gmask;
+	    }
+	    incrustation = clamp(gmask * incrustation, 0.0, 1.0);
+	}
+	
+
+
+	float4 resultColor;
+	if ( type == 0 ) 
+	{
+	     resultColor = float4(color.r, color.g, color.b, incrustation);
+    }
+    else if ( type == 1)
+    {
+         resultColor = float4(incrustation, incrustation, incrustation, 1.0);
+    }
+    else if ( type == 2 )
+    {
+        resultColor = float4(color_orig.r, color_orig.g, color_orig.b, 1.0 );
+    }
+    else if ( type == 3 )
+    {
+        resultColor = float4(color.r, color.g, color.b, 1.0 );
+    }
+    else
+    {
+        resultColor = float4(gmask, gmask, gmask, 1.0 );
+    }
+    resultTex[id.xy] = resultColor;
+}        

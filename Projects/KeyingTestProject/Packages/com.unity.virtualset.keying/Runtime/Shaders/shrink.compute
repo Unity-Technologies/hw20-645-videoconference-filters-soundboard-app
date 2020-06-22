@@ -1,0 +1,59 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+Texture2D<float4> inputFM_Pass0;
+Texture2D<float4> inputFM;
+
+RWTexture2D<float4> resultFM;
+SamplerState _LinearClamp;
+SamplerState _LinearRepeat;
+SamplerState _PointClamp;
+SamplerState _PointRepeat;
+float amount;
+int enable_shrink;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+	float w, h;
+	resultFM.GetDimensions(w, h);
+	
+	float2 uv = float2(id.x / w, id.y / h);
+	
+	float4 color_orig = inputFM_Pass0.SampleLevel(_LinearClamp, uv, 0);
+	// matte before blur and shrink operation
+	float om =  color_orig.a;
+    // blurred matte for shrink
+    float4 blur_orig = inputFM.SampleLevel(_LinearClamp, uv, 0);
+
+    float m = blur_orig.a;
+    // inv the original matte
+    m = 1.0 - m;
+    // apply the shrink via histogram adjustments
+    
+    if ( enable_shrink == 1 )
+    {
+        m = m * om;
+        m = 1.0 - m;
+        m = m * om; 
+ //       float sh = 0.0;
+ //       if ( amount <= 0.0 )
+//        {
+ //           sh = amount * -1.0;
+ //           m = min(max(m - sh, 0.0) / (1.0 - sh), 1.0);
+ //       }
+ //       else if ( amount >= 0.0 )
+ //       {
+ //           sh = 1.0 - amount;
+ //           m = min(max(m - 0.0, 0.0) / (sh - 0.0), 1.0);
+ //       }
+    }
+    else
+        m = om;
+
+	float4 resultColor;
+	resultColor = float4(color_orig.r, color_orig.g, color_orig.b, m );
+    resultFM[id.xy] = resultColor;
+}        
