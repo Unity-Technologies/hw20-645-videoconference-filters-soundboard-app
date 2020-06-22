@@ -1,0 +1,14 @@
+﻿<Properties StartupConfiguration="{38664444-1806-AD77-23E8-190329B941F3}|Unit Tests">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Klak/Syphon/Runtime/SyphonServer.cs">
+    <Files>
+      <File FileName="Assets/Klak/Syphon/Runtime/SyphonServer.cs" Line="1" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp-Editor PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>
