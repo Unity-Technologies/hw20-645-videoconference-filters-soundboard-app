@@ -1,0 +1,211 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!181963792 &2655988077585873504
+Preset:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: PipelineKeyer
+  m_TargetType:
+    m_NativeTypeID: 114
+    m_ManagedTypePPtr: {fileID: 11500000, guid: 741ee584f6572e34e878f624aac5dfc5,
+      type: 3}
+    m_ManagedTypeFallback: 
+  m_Properties:
+  - target: {fileID: 0}
+    propertyPath: m_Enabled
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorHideFlags
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorClassIdentifier
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: computeShader
+    value: 
+    objectReference: {fileID: 7200000, guid: 67a5c54e137032e409a838c1c1f39b8a, type: 3}
+  - target: {fileID: 0}
+    propertyPath: m_GarbageMask
+    value: 
+    objectReference: {fileID: 8400000, guid: 9cfe29d65eac9944c831d2c3629a7475, type: 2}
+  - target: {fileID: 0}
+    propertyPath: m_inputTexture
+    value: 
+    objectReference: {fileID: 8400000, guid: a69b88ea721f64a40ac26f86eae30a47, type: 2}
+  - target: {fileID: 0}
+    propertyPath: OutputRT
+    value: 
+    objectReference: {fileID: 8400000, guid: 7b9965aa13b26c443b64548bb16efcd6, type: 2}
+  - target: {fileID: 0}
+    propertyPath: OutputFrontCCM_RT
+    value: 
+    objectReference: {fileID: 8400000, guid: e4b435457f6e01d4088c06f339b78f2c, type: 2}
+  - target: {fileID: 0}
+    propertyPath: m_Color.r
+    value: 0.054901965
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Color.g
+    value: 0.74509805
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Color.b
+    value: 0.28235295
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Color.a
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_DespillAmount
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_DistMul
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Range
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_TolA
+    value: 4.96
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_TolB
+    value: 5.05
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_OutputType
+    value: 2
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_UseDeSpill
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_UseInvertKey
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_UseGMask
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_UseInvertGMask
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Width
+    value: 2048
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Height
+    value: 1024
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: EdgeExpand.cs
+    value: 
+    objectReference: {fileID: 7200000, guid: a0409bcf7492a224b813e6dd8b179c71, type: 3}
+  - target: {fileID: 0}
+    propertyPath: EdgeExpand.m_InputFM
+    value: 
+    objectReference: {fileID: 8400000, guid: e4b435457f6e01d4088c06f339b78f2c, type: 2}
+  - target: {fileID: 0}
+    propertyPath: EdgeExpand.m_ResultFM
+    value: 
+    objectReference: {fileID: 8400000, guid: eed39b7460ca3e14ba8807dc1bba04c1, type: 2}
+  - target: {fileID: 0}
+    propertyPath: EdgeExpand.m_Amount
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: BlurMatte.cs
+    value: 
+    objectReference: {fileID: 7200000, guid: c9744ae95d586f84bae61b6e54322ecd, type: 3}
+  - target: {fileID: 0}
+    propertyPath: BlurMatte.m_InputFM
+    value: 
+    objectReference: {fileID: 8400000, guid: eed39b7460ca3e14ba8807dc1bba04c1, type: 2}
+  - target: {fileID: 0}
+    propertyPath: BlurMatte.m_ResultFM
+    value: 
+    objectReference: {fileID: 8400000, guid: 95f005784fbd4e34d915951793d906a4, type: 2}
+  - target: {fileID: 0}
+    propertyPath: BlurMatte.m_Amount
+    value: 1.8
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: ShrinkMatte.cs
+    value: 
+    objectReference: {fileID: 7200000, guid: 7a90bf77a6071f34b9afbecac4dcfd46, type: 3}
+  - target: {fileID: 0}
+    propertyPath: ShrinkMatte.m_InputFM
+    value: 
+    objectReference: {fileID: 8400000, guid: 95f005784fbd4e34d915951793d906a4, type: 2}
+  - target: {fileID: 0}
+    propertyPath: ShrinkMatte.m_ResultFM
+    value: 
+    objectReference: {fileID: 8400000, guid: 1de553ddc78930d42b5a3f07c9365b9a, type: 2}
+  - target: {fileID: 0}
+    propertyPath: ShrinkMatte.m_EnableShrink
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: ShrinkMatte.m_InputPreBlur
+    value: 
+    objectReference: {fileID: 8400000, guid: eed39b7460ca3e14ba8807dc1bba04c1, type: 2}
+  - target: {fileID: 0}
+    propertyPath: KeyCombine.cs
+    value: 
+    objectReference: {fileID: 7200000, guid: ac924d461a12a2d40a1b8e8af27cc600, type: 3}
+  - target: {fileID: 0}
+    propertyPath: KeyCombine.m_InputFM
+    value: 
+    objectReference: {fileID: 8400000, guid: 1de553ddc78930d42b5a3f07c9365b9a, type: 2}
+  - target: {fileID: 0}
+    propertyPath: KeyCombine.m_ResultFM
+    value: 
+    objectReference: {fileID: 8400000, guid: 8ab4db5d1bc6b1c46aca1a554ae0170e, type: 2}
+  - target: {fileID: 0}
+    propertyPath: KeyCombine.m_PassOutputType
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: KeyCombine.m_InputPass.Array.size
+    value: 7
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: KeyCombine.m_InputPass.Array.data[0]
+    value: 
+    objectReference: {fileID: 8400000, guid: 1de553ddc78930d42b5a3f07c9365b9a, type: 2}
+  - target: {fileID: 0}
+    propertyPath: KeyCombine.m_InputPass.Array.data[1]
+    value: 
+    objectReference: {fileID: 8400000, guid: 7b9965aa13b26c443b64548bb16efcd6, type: 2}
+  - target: {fileID: 0}
+    propertyPath: KeyCombine.m_InputPass.Array.data[2]
+    value: 
+    objectReference: {fileID: 8400000, guid: e4b435457f6e01d4088c06f339b78f2c, type: 2}
+  - target: {fileID: 0}
+    propertyPath: KeyCombine.m_InputPass.Array.data[3]
+    value: 
+    objectReference: {fileID: 8400000, guid: 9cfe29d65eac9944c831d2c3629a7475, type: 2}
+  - target: {fileID: 0}
+    propertyPath: KeyCombine.m_InputPass.Array.data[4]
+    value: 
+    objectReference: {fileID: 8400000, guid: eed39b7460ca3e14ba8807dc1bba04c1, type: 2}
+  - target: {fileID: 0}
+    propertyPath: KeyCombine.m_InputPass.Array.data[5]
+    value: 
+    objectReference: {fileID: 8400000, guid: 95f005784fbd4e34d915951793d906a4, type: 2}
+  - target: {fileID: 0}
+    propertyPath: KeyCombine.m_InputPass.Array.data[6]
+    value: 
+    objectReference: {fileID: 8400000, guid: 1de553ddc78930d42b5a3f07c9365b9a, type: 2}

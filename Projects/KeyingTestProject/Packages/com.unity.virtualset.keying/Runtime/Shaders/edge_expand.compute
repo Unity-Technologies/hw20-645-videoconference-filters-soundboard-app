@@ -1,0 +1,45 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+Texture2D<float4> inputFM;
+
+
+RWTexture2D<float4> resultFM;
+SamplerState _LinearClamp;
+SamplerState _LinearRepeat;
+SamplerState _PointClamp;
+SamplerState _PointRepeat;
+
+float amount;
+
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+	float w, h;
+	resultFM.GetDimensions(w, h);
+	float xincr = id.x / w;
+	float yincr = id.y / h;
+	
+	int soften = (int)amount;
+	float2 uv = float2(id.x / w, id.y / h);
+	float4 color_orig = inputFM.SampleLevel(_LinearClamp, uv, 0);
+	float m =  color_orig.a;
+	float avg = 0;
+    {
+        avg = 0.0;
+        for (int i=-soften; i <= soften; ++i) {
+            for (int j = -soften; j <= soften; ++j) {
+                avg = avg + inputFM.SampleLevel(_LinearClamp, float2( clamp(uv.x + (float)i/(float)w, 0, 1), clamp(uv.y + (float)j/(float)h, 0, 1)), 0).a;
+            }
+        }
+    }
+    float area = (2*soften + 1) * (2*soften + 1);
+    m = avg / area;
+	float4 resultColor;
+	resultColor = float4(color_orig.r, color_orig.g, color_orig.b, m );
+
+    resultFM[id.xy] = resultColor;
+}        

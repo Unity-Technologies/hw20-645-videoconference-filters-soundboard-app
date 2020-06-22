@@ -1,0 +1,148 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+Texture2D<float4> FG;
+Texture2D<float4> garbageMask;
+int type;
+uint keyer_options;
+int use_despill;
+int use_gmask;
+int use_invert_key;
+int use_invert_gmask;
+
+RWTexture2D<float4> resultTex;
+SamplerState _LinearClamp;
+SamplerState _LinearRepeat;
+SamplerState _PointClamp;
+SamplerState _PointRepeat;
+
+float3 input_keyin_color;
+float tola;
+float tolb;
+
+float range;
+float dist_mul;
+float despill_amount;
+
+float3 despill_blue(float3 color, float amount)
+{
+    float3 result = color;
+    float3 suppressed = color;
+    
+    suppressed.g = min((color.r+color.b)*0.5, suppressed.g);
+    
+    result = lerp( color, suppressed, amount );
+    return result;
+}
+
+//Converts RGB to YUV
+float3 RGBtoYUV(float3 rgb)
+{
+	float4x4 RGB2YUV = { 0.182586,  0.614231,  0.062007, 0.062745,
+		-0.100644, -0.338572,  0.439216, 0.501961,
+		0.439216, -0.398942, -0.040274, 0.501961,
+		0.000000,  0.000000,  0.000000, 1.000000 };
+
+	return mul(RGB2YUV, float4(rgb,1)).rgb;
+}
+
+//Algorithm to compute the alpha of a frag depending of the similarity of a color.
+//ColorCamera is the color from a texture given by the camera
+float computeAlphaYUVFromYUV(float3 colorCamera, float3 keyColor) {
+    float dist = distance(keyColor.yz, colorCamera.yz);
+    if ( dist < tola ) {return (0.0); }
+    if ( dist < tolb ) {return ((dist-tola)/(tolb-tola));}
+	return 1.0;
+}
+
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+	float w, h;
+	resultTex.GetDimensions(w, h);
+	float xincr = id.x / w;
+	float yincr = id.y / h;
+	
+	float2 uv = float2(id.x / w, id.y / h);
+	
+	//float2 uv2 = float2( clamp( uv.x - xincr, 0, w), clamp(uv.y - yincr, 0, h ));
+	//float2 uv4 = float2( clamp( uv.x + xincr, 0, w), clamp(uv.y - yincr, 0, h ));
+	//float2 uv6 = float2( clamp( uv.x - xincr, 0, w), clamp(uv.y + yincr, 0, h ));
+	//float2 uv8 = float2( clamp( uv.x + xincr, 0, w), clamp(uv.y + yincr, 0, h ));
+	
+	//float2 uv1 = float2( clamp( uv.x - xincr, 0, w), uv.y );
+	//float2 uv3 = float2( clamp( uv.x + xincr, 0, w), uv.y );
+	//float2 uv5 = float2( uv.x, clamp( uv.y + yincr, 0, h ));
+	//float2 uv7 = float2( uv.x, clamp( uv.y - yincr, 0, h ));
+	
+		//X | 0 | X
+		//0 | X | 0
+		//X | 0 | X
+		//X are the sampling done
+
+	float3 color_orig = FG.SampleLevel(_LinearClamp, uv, 0).rgb;
+	float3 in_keyin_yuv = RGBtoYUV(input_keyin_color.rgb);
+	float incrustation = computeAlphaYUVFromYUV(RGBtoYUV(color_orig), in_keyin_yuv);
+	
+	//computeAlphaYUVFromYUV(RGBtoYUV(FG.SampleLevel(_LinearClamp, uv2, 0).rgb), in_keyin_yuv)
+	//+ computeAlphaYUVFromYUV(RGBtoYUV(FG.SampleLevel(_LinearClamp, uv4, 0).rgb), in_keyin_yuv)
+	//+ computeAlphaYUVFromYUV(RGBtoYUV(FG.SampleLevel(_LinearClamp, uv6, 0).rgb), in_keyin_yuv)
+	//+ computeAlphaYUVFromYUV(RGBtoYUV(FG.SampleLevel(_LinearClamp, uv8, 0).rgb), in_keyin_yuv)
+	//+ computeAlphaYUVFromYUV(RGBtoYUV(FG.SampleLevel(_LinearClamp, uv1, 0).rgb), in_keyin_yuv)
+	//+ computeAlphaYUVFromYUV(RGBtoYUV(FG.SampleLevel(_LinearClamp, uv3, 0).rgb), in_keyin_yuv)
+	//+ computeAlphaYUVFromYUV(RGBtoYUV(FG.SampleLevel(_LinearClamp, uv5, 0).rgb), in_keyin_yuv)
+	//+ computeAlphaYUVFromYUV(RGBtoYUV(FG.SampleLevel(_LinearClamp, uv7, 0).rgb), in_keyin_yuv)
+	
+	
+	//incrustation /= 9.0;
+	incrustation = incrustation - range;
+	float3 color = color_orig;
+	if ( use_despill ) // use despill
+	{
+	    color = despill_blue(color_orig, despill_amount );
+	}
+
+
+	if ( use_invert_key )
+	{
+	    incrustation = 1.0 - incrustation;
+	}
+
+	float gmask = 0.0f;
+	if ( use_gmask ) // use gmask
+	{ 
+	    gmask =  garbageMask.SampleLevel( _LinearClamp, uv, 0).r;	
+	    if ( use_invert_gmask ) 
+	    {
+	       gmask = 1.0 - gmask;
+	    }
+	    incrustation = clamp(gmask * incrustation, 0.0, 1.0);
+	}
+
+	
+	float4 resultColor;
+	if ( type == 0 ) 
+	{
+	     resultColor = float4(color.r, color.g, color.b, incrustation);
+    }
+    else if ( type == 1)
+    {
+         resultColor = float4(incrustation, incrustation, incrustation, 1.0);
+    }
+    else if ( type == 2 )
+    {
+        resultColor = float4(color_orig.r, color_orig.g, color_orig.b, 1.0 );
+    }
+    else if ( type == 3 )
+    { 
+        resultColor = float4(color.r, color.g, color.b, 1.0 );
+    }
+    else 
+    {
+        resultColor = float4(gmask,  gmask, gmask, 1.0);
+    }
+    resultTex[id.xy] = resultColor;
+}        

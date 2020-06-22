@@ -1,0 +1,130 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSBlurX
+#pragma kernel CSBlurY
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+
+#define PI 3.141592653589793238462643383279502884197969
+
+Texture2D<float4> inputTexX;
+RWTexture2D<float4> resultTexX;
+
+Texture2D<float4> inputTexY;
+RWTexture2D<float4> resultTexY;
+ 
+SamplerState _LinearClamp;
+SamplerState _LinearRepeat;
+SamplerState _PointClamp;
+SamplerState _PointRepeat;
+ 
+float amount;
+
+
+[numthreads(8,8,1)]
+void CSBlurX (uint3 id : SV_DispatchThreadID)
+{
+ 
+	float w, h;
+	resultTexX.GetDimensions(w, h);
+	
+	float2 uv = float2(id.x / w, id.y / h);
+    float texel = 1.0/w;
+    
+    float2 xy = float2( id.x, id.y);
+	float strength = 1.0;
+    float bias = 1.0;
+   
+    float blur_red = 1.0;
+    float blur_green = 1.0;
+    float blur_blue = 1.0;
+    float blur_matte = 1.0;
+
+	float br = blur_red * amount * bias * strength;
+	float bg = blur_green * amount * bias * strength;
+	float bb = blur_blue * amount * bias * strength;
+	float bm = blur_matte * amount * bias * strength;
+
+	float support = max(max(max(br, bg), bb), bm) * 3.0;
+    float2 dir = float2( 1.0, 0.0 );
+    
+	float4 sigmas = float4(br, bg, bb, bm);
+	sigmas = max(sigmas, 0.0001);
+
+	float4 gx, gy, gz;
+	gx = 1.0 / (sqrt(2.0 * PI) * sigmas);
+	gy = exp(-0.5 / (sigmas * sigmas));
+	gz = gy * gy;
+
+    float4 color_orig = inputTexX.SampleLevel(_LinearClamp, uv, 0);
+	float4 a = gx * color_orig;
+	float4 energy = gx;
+	gx *= gy;
+	gy *= gz;
+
+	for(float i = 1; i <= support; i++) {
+        a += gx * inputTexX.SampleLevel(_LinearClamp, float2(clamp((xy.x - i * dir.x) * texel, 0, 1), uv.y), 0);
+        a += gx * inputTexX.SampleLevel(_LinearClamp, float2(clamp((xy.x + i * dir.x) * texel, 0, 1), uv.y) ,0);
+		energy += 2.0 * gx;
+		gx *= gy;
+		gy *= gz;
+	}
+
+	a /= energy;
+
+    float4 resultColor = float4( color_orig.r, color_orig.g, color_orig.b, a.a);
+	resultTexX[id.xy] = resultColor;
+
+}
+
+[numthreads(8,8,1)]
+void CSBlurY (uint3 id : SV_DispatchThreadID)
+{
+    float w, h;
+    resultTexY.GetDimensions(w,h);
+    float2 uv = float2(id.x/w, id.y/h);
+    float texel = 1.0/h;
+    float2 xy = float2( id.x, id.y);
+	float strength = 1.0;
+    float bias = 1.0;
+   
+    float blur_red = 1.0;
+    float blur_green = 1.0;
+    float blur_blue = 1.0;
+    float blur_matte = 1.0;
+
+	float br = blur_red * amount * bias * strength;
+	float bg = blur_green * amount * bias * strength;
+	float bb = blur_blue * amount * bias * strength;
+	float bm = blur_matte * amount * bias * strength;
+
+	float support = max(max(max(br, bg), bb), bm) * 3.0;
+    float2 dir = float2( 0.0, 1.0 );
+    
+	float4 sigmas = float4(br, bg, bb, bm);
+	sigmas = max(sigmas, 0.0001);
+
+	float4 gx, gy, gz;
+	gx = 1.0 / (sqrt(2.0 * PI) * sigmas);
+	gy = exp(-0.5 / (sigmas * sigmas));
+	gz = gy * gy;
+
+    float4 color_orig = inputTexY.SampleLevel(_LinearClamp, uv, 0);
+	float4 a = gx * color_orig;
+
+	float4 energy = gx;
+	gx *= gy;
+	gy *= gz;
+
+	for(float i = 1; i <= support; i++) {
+        a += gx * inputTexY.SampleLevel(_LinearClamp,  float2( uv.x, clamp((xy.y - i * dir.y) * texel, 0, 1)), 0);
+        a += gx * inputTexY.SampleLevel(_LinearClamp,  float2( uv.x, clamp((xy.y + i * dir.y) * texel, 0, 1)), 0);
+		energy += 2.0 * gx;
+		gx *= gy;
+		gy *= gz;
+	}
+
+	a /= energy;
+    resultTexY[id.xy] = float4(color_orig.r, color_orig.g, color_orig.b, a.a);
+}
+

@@ -1,0 +1,70 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+Texture2D<float4> inputFM;
+Texture2D<float4> inputFM_Pass0;
+Texture2D<float4> inputFM_Pass1;
+Texture2D<float4> inputFM_Pass2;
+Texture2D<float4> inputFM_Pass3;
+Texture2D<float4> inputFM_Pass4;
+Texture2D<float4> inputFM_Pass5;
+Texture2D<float4> inputFM_Pass6;
+
+int type;
+RWTexture2D<float4> resultFM;
+SamplerState _LinearClamp;
+SamplerState _LinearRepeat;
+SamplerState _PointClamp;
+SamplerState _PointRepeat;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+	float w, h;
+	resultFM.GetDimensions(w, h);
+	
+	float2 uv = float2(id.x / w, id.y / h);
+	float4 resultColor = float4(1,1,0,1);
+	if ( type == 0 ) // Result
+	{  
+	     resultColor = inputFM.SampleLevel(_LinearClamp, uv, 0);
+    }
+    else if ( type == 1) // Matte
+    {
+         float4 c = inputFM_Pass0.SampleLevel(_LinearClamp, uv, 0);
+         resultColor = float4(c.a, c.a, c.a, 1.0);
+    }
+    else if ( type == 2 ) // Front
+    {  
+        float4 c = inputFM_Pass1.SampleLevel(_LinearClamp, uv, 0);
+        resultColor =  float4(c.r, c.g, c.b, 1.0);
+    }
+    else if ( type == 3 ) // FrontCC
+    {
+        float4 c = inputFM_Pass2.SampleLevel(_LinearClamp, uv, 0);
+        resultColor =  float4(c.r, c.g, c.b, 1.0);
+    }       
+    else if ( type == 4 ) // GMask
+    {
+        float4 c = inputFM_Pass3.SampleLevel(_LinearClamp, uv, 0);
+        resultColor = float4(c.r, c.r, c.r, 1.0);
+    }
+    else if ( type == 5 ) // EdgeExpand
+    {
+        float4 c = inputFM_Pass4.SampleLevel(_LinearClamp, uv, 0);
+        resultColor = float4(c.a, c.a, c.a, 1.0);
+    }
+    else if ( type == 6 ) // BlurMatte
+    {
+        float4 c = inputFM_Pass5.SampleLevel(_LinearClamp, uv, 0);
+        resultColor = float4(c.a, c.a, c.a, 1.0);
+    }
+    else if ( type == 7 ) // ShrinkMatte
+    {
+       float4 c = inputFM_Pass6.SampleLevel(_LinearClamp, uv, 0);
+       resultColor = float4(c.a, c.a, c.a, 1.0);
+    }
+    resultFM[id.xy] = resultColor;
+}        
