@@ -170,7 +170,7 @@ MonoBehaviour:
   height: 1080
   fps: 30
   shader: {fileID: 7200000, guid: e78a337c1a8c0fa4ab1cfa2d39886c6b, type: 3}
-  swizzleChannels: 0
+  swizzleChannels: 1
 --- !u!4 &108183571
 Transform:
   m_ObjectHideFlags: 0
@@ -632,7 +632,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1428838278}
-  - component: {fileID: 1428838277}
   m_Layer: 0
   m_Name: Compute
   m_TagString: Untagged
@@ -640,20 +639,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1428838277
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1428838276}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 441129c47cc2e904294094d4b01b0c7b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  compute: {fileID: 7200000, guid: e78a337c1a8c0fa4ab1cfa2d39886c6b, type: 3}
-  tex: {fileID: 0}
 --- !u!4 &1428838278
 Transform:
   m_ObjectHideFlags: 0
@@ -756,13 +741,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1959867486}
-  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: -0.7071068, z: 0.7071068, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 11.19}
   m_LocalScale: {x: 1.6, y: 0.9, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 180}
 --- !u!114 &1959867491
 MonoBehaviour:
   m_ObjectHideFlags: 0
