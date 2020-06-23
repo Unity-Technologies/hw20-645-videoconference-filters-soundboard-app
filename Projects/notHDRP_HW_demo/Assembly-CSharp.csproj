@@ -58,6 +58,7 @@
      <Compile Include="Assets\Klak\Syphon\Internal\SyphonCommon.cs" />
      <Compile Include="Assets\Klak\Syphon\Runtime\SyphonClient.cs" />
      <Compile Include="Assets\Klak\Syphon\Runtime\SyphonServer.cs" />
+     <Compile Include="Assets\WebcamGrabber.cs" />
      <None Include="Assets\Klak\Syphon\Internal\Resources\Blit.shader" />
      <None Include="Assets\Cartoon Temple Building Kit\ReadMe.txt" />
  <Reference Include="UnityEngine">
