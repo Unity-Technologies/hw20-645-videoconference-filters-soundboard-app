@@ -24,3 +24,5 @@ Projects/HW_shader_VFX_Zoom/obj/
 Projects/HW_shader_VFX_Zoom/Temp/
 Projects/HW_shader_VFX_Zoom/.csproj
 
+*.csproj
+*.sln
