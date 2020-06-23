@@ -32,3 +32,4 @@ Projects/HW_shader_VFX_Zoom/Assembly-CSharp.csproj
 Projects/HW_shader_VFX_Zoom/Assembly-CSharp-Editor.csproj
 Projects/HW_shader_VFX_Zoom/HW_shader_VFX_Zoom.sln
 Projects/notHDRP_HW_demo/notHDRP_HW_demo.sln
+*.csproj
