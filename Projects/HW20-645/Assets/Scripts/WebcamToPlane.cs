@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WebcamGrabber : MonoBehaviour
+public class WebcamToPlane : MonoBehaviour
 {
     public RenderTexture targetTexture;
     public int width = 1920, height = 1080, fps = 60;
@@ -13,8 +13,6 @@ public class WebcamGrabber : MonoBehaviour
 
     public bool swizzleChannels = false;
 
-    public Renderer mesh = null;
-    private string property = "_Main_tex";
     void Start()
     {
         tempTexture = new RenderTexture(width, height, 24);
@@ -24,12 +22,6 @@ public class WebcamGrabber : MonoBehaviour
         kernelHandle = shader.FindKernel("CSMain");
 
         SetWebCamTexture();
-
-        if (mesh)
-        {
-            if(mesh.material.HasProperty(property))
-            mesh.material.SetTexture(property, targetTexture);
-        }
     }
 
     void Update()
