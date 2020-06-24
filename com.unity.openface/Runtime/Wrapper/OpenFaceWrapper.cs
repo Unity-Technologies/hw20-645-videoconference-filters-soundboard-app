@@ -6,7 +6,6 @@ public struct OpenFaceWrapperInfo
 {
 #if UNITY_STANDALONE_WIN
     public const string LibraryPath = "UnityOpenFaceWrapper";
-    //public const string LibraryPath = "Packages/com.unity.openface/Plugins/x64/UnityOpenFaceWrapper.dll";
 #else
     public const string LibraryPath = "N/A";
 #endif
@@ -15,5 +14,11 @@ public struct OpenFaceWrapperInfo
 internal struct UnityOpenFaceWrapper
 {
     [DllImport(OpenFaceWrapperInfo.LibraryPath)]
-    public static extern int GetFeatures();
+    public static extern bool OpenFaceSetup();
+    
+    [DllImport(OpenFaceWrapperInfo.LibraryPath)]
+    public static extern bool OpenFaceGetFeatures(byte[] pixels, int width, int height, StringBuilder jsonData, int jsonDataLength);
+    
+    [DllImport(OpenFaceWrapperInfo.LibraryPath)]
+    public static extern bool OpenFaceClose();
 }
