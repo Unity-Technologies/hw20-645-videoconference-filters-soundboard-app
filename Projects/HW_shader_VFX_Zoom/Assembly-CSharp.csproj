@@ -55,12 +55,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Klak\Syphon\Internal\SyphonCommon.cs" />
-     <Compile Include="Assets\Klak\Syphon\Runtime\SyphonClient.cs" />
-     <Compile Include="Assets\Klak\Syphon\Runtime\SyphonServer.cs" />
+     <Compile Include="Assets\Scripts\ComputeWebShader.cs" />
      <Compile Include="Assets\Scripts\SimpleCameraController.cs" />
+     <Compile Include="Assets\Scripts\SwizzleOutput.cs" />
+     <Compile Include="Assets\Scripts\WebcamGrabber.cs" />
+     <Compile Include="Assets\Scripts\WebcamToPlane.cs" />
      <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
-     <None Include="Assets\Klak\Syphon\Internal\Resources\Blit.shader" />
+     <None Include="Assets\Art\computeWebShader.compute" />
+     <None Include="Assets\HW_demo\Klak\NDI\Resources\Receiver.shader" />
+     <None Include="Assets\HW_demo\Klak\NDI\Resources\Sender.shader" />
  <Reference Include="UnityEngine">
  <HintPath>/Applications/Unity/Hub/Editor/2019.4.0f1/Unity.app/Contents/Managed/UnityEngine/UnityEngine.dll</HintPath>
  </Reference>
@@ -657,6 +660,14 @@
  </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="Klak.Ndi.csproj">
+      <Project>{10914752-2068-F059-4F7C-12CEBDDD4703}</Project>
+      <Name>Klak.Ndi</Name>
+    </ProjectReference>
+    <ProjectReference Include="Klak.Ndi.Editor.csproj">
+      <Project>{4760A7D7-CC77-DA1E-5E35-D9CBE2F97255}</Project>
+      <Name>Klak.Ndi.Editor</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

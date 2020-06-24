@@ -55,9 +55,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Klak\Syphon\Editor\SyphonClientEditor.cs" />
-     <Compile Include="Assets\Klak\Syphon\Editor\SyphonServerEditor.cs" />
-     <Compile Include="Assets\Klak\Syphon\Editor\SyphonServerListWindow.cs" />
      <Compile Include="Assets\TutorialInfo\Scripts\Editor\ReadmeEditor.cs" />
  <Reference Include="UnityEngine">
  <HintPath>/Applications/Unity/Hub/Editor/2019.4.0f1/Unity.app/Contents/Managed/UnityEngine/UnityEngine.dll</HintPath>
@@ -679,6 +676,14 @@
     <ProjectReference Include="Assembly-CSharp.csproj">
       <Project>{0F2BFB17-34AE-0A38-53C8-7424ABAB0343}</Project>
       <Name>Assembly-CSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="Klak.Ndi.csproj">
+      <Project>{10914752-2068-F059-4F7C-12CEBDDD4703}</Project>
+      <Name>Klak.Ndi</Name>
+    </ProjectReference>
+    <ProjectReference Include="Klak.Ndi.Editor.csproj">
+      <Project>{4760A7D7-CC77-DA1E-5E35-D9CBE2F97255}</Project>
+      <Name>Klak.Ndi.Editor</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
