@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using UnityEngine;
@@ -13,6 +14,18 @@ public static class ExtensionMethod
         tex.ReadPixels(new Rect(0, 0, rTex.width, rTex.height), 0, 0);
         tex.Apply();
         RenderTexture.active = activeTex;
+        return tex;
+    }
+    
+    public static Texture2D DrawCircle(this Texture2D tex, Color color, int x, int y, int radius = 3)
+    {
+        float rSquared = radius * radius;
+
+        for (int u = x - radius; u < x + radius + 1; u++)
+        for (int v = y - radius; v < y + radius + 1; v++)
+            if ((x - u) * (x - u) + (y - v) * (y - v) < rSquared)
+                tex.SetPixel(u, v, color);
+
         return tex;
     }
 }
@@ -97,6 +110,35 @@ public class OpenFaceExtractor : MonoBehaviour
                 var openFaceData = JsonUtility.FromJson<OpenFaceJSONData>(sb.ToString());
                 var countFaces = openFaceData.faces == null ? 0 : openFaceData.faces.Count;
                 //Debug.LogWarning($"Found {countFaces} faces in the image.");
+                
+                // Draw something on the texture
+                if (countFaces == 1)
+                {
+                    // See https://github.com/TadasBaltrusaitis/OpenFace/wiki/Output-Format for landmark IDs
+                    var landmarkNoseTip = openFaceData.faces[0].landmarks.landmarks2d[33];
+                    landmarkNoseTip.y = tex.height - landmarkNoseTip.y; // image is flipped vertically
+                    tex.DrawCircle(Color.red, (int)landmarkNoseTip.x, (int)landmarkNoseTip.y, 30);
+                    
+                    // Save to file
+                    bool writeToFile = false;
+                    if (writeToFile)
+                    {
+                        byte[] bytes = tex.EncodeToPNG();
+                        File.WriteAllBytes(Application.dataPath + "/../Capture.png", bytes);
+                    }
+                    
+                    // Now load the Texture2d into the target RenderTexture
+                    var lastActive = RenderTexture.active;
+                    targetTexture = new RenderTexture(tex.width, tex.height, 0);
+                    RenderTexture.active = targetTexture;
+                    // Copy your texture ref to the render texture
+                    Graphics.Blit(tex, targetTexture);
+                    RenderTexture.active = lastActive;
+                }
+                else
+                {
+                    targetTexture = sourceTexture;
+                }
             }
         }
     }
