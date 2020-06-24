@@ -12,12 +12,16 @@ public class CameraGrab : MonoBehaviour
     {
         if (targetCamera)
             CameraCaptureBridge.AddCaptureAction(targetCamera, AddCaptureCommands);
+        else
+            Debug.Log("CameraGrab WARNING MISSING camera ");
     }
 
     private void OnDisable()
     {
         if (targetCamera)
             CameraCaptureBridge.RemoveCaptureAction(targetCamera, AddCaptureCommands);
+        else
+            Debug.Log("CameraGrab WARNING MISSING camera ");
     }
     protected void AddCaptureCommands(RenderTargetIdentifier source, CommandBuffer cb)
     {
@@ -30,6 +34,8 @@ public class CameraGrab : MonoBehaviour
             cb.Blit(tid, outputTexture);
             cb.ReleaseTemporaryRT(tid);
         }
+        else
+            Debug.Log("CameraGrab WARNING MISSING outputTexture ");
         //if (source == BuiltinRenderTextureType.CurrentActive)
         //{
         //    var tid = Shader.PropertyToID("_MainTex");

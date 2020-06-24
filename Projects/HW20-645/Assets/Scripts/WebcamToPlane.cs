@@ -18,25 +18,33 @@ public class WebcamToPlane : MonoBehaviour
         tempTexture = new RenderTexture(width, height, 24);
         tempTexture.enableRandomWrite = true;
         tempTexture.Create();
-        // targetTexture.enableRandomWrite = true;
-        kernelHandle = shader.FindKernel("CSMain");
-
+        if (shader)
+        {
+            kernelHandle = shader.FindKernel("CSMain");
+        }
+        else
+            Debug.Log("WebcamToPlane WARNING MISSING shader ");
         SetWebCamTexture();
     }
 
     void Update()
     {
-        if (swizzleChannels)
+        if (webcamTexture && tempTexture && targetTexture)
         {
-            Graphics.Blit(webcamTexture, tempTexture);
-            shader.SetTexture(kernelHandle, "Result", tempTexture);
-            shader.Dispatch(kernelHandle, width / 8, height / 8, 1);
-            Graphics.Blit(tempTexture, targetTexture);
+            if (swizzleChannels)
+            {
+                Graphics.Blit(webcamTexture, tempTexture);
+                shader.SetTexture(kernelHandle, "Result", tempTexture);
+                shader.Dispatch(kernelHandle, width / 8, height / 8, 1);
+                Graphics.Blit(tempTexture, targetTexture);
+            }
+            else
+            {
+                Graphics.Blit(webcamTexture, targetTexture);
+            }
         }
         else
-        {
-            Graphics.Blit(webcamTexture, targetTexture);
-        }
+            Debug.Log("WebcamToPlane WARNING MISSING webcamTexture && tempTexture && targetTexture ");
     }
 
     void SetWebCamTexture()

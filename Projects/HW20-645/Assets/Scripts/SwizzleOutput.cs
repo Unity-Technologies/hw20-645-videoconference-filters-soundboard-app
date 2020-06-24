@@ -16,16 +16,26 @@ public class SwizzleOutput : MonoBehaviour
         tempTexture = new RenderTexture(width, height, 24);
         tempTexture.enableRandomWrite = true;
         tempTexture.Create();
-        // targetTexture.enableRandomWrite = true;
-        kernelHandle = shader.FindKernel("CSMain");
+        if (shader)
+        {
+            // targetTexture.enableRandomWrite = true;
+            kernelHandle = shader.FindKernel("CSMain");
+        }
+        else
+            Debug.Log("SwizzleOutput WARNING MISSING shader ");
     }
 
     // Update is called once per frame
     void Update()
     {
-        Graphics.Blit(inputTexture, tempTexture);
-        shader.SetTexture(kernelHandle, "Result", tempTexture);
-        shader.Dispatch(kernelHandle, width / 8, height / 8, 1);
-        Graphics.Blit(tempTexture, outputTexture);
+        if (inputTexture && outputTexture && tempTexture)
+        {
+            Graphics.Blit(inputTexture, tempTexture);
+            shader.SetTexture(kernelHandle, "Result", tempTexture);
+            shader.Dispatch(kernelHandle, width / 8, height / 8, 1);
+            Graphics.Blit(tempTexture, outputTexture);
+        }
+        else
+            Debug.Log("SwizzleOutput WARNING MISSING webcamTexture && tempTexture && targetTexture ");
     }
 }
