@@ -4,6 +4,8 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
+
 public static class ExtensionMethod
 {
     public static Texture2D toTexture2D(this RenderTexture rTex)
@@ -82,6 +84,8 @@ public class OpenFaceSingleFace
 /// </summary>
 public class OpenFaceExtractor : MonoBehaviour
 {
+    // If the image is flipped vertically, facial recognition will not work as expected
+    //public bool flipWebcamImage;
     public RenderTexture sourceTexture;
     public RenderTexture targetTexture;
 
@@ -117,7 +121,6 @@ public class OpenFaceExtractor : MonoBehaviour
                 {
                     // See https://github.com/TadasBaltrusaitis/OpenFace/wiki/Output-Format for landmark IDs
                     var landmarkNoseTip = openFaceData.faces[0].landmarks.landmarks2d[33];
-                    landmarkNoseTip.y = tex.height - landmarkNoseTip.y; // image is flipped vertically
                     tex.DrawCircle(Color.red, (int)landmarkNoseTip.x, (int)landmarkNoseTip.y, 30);
                     
                     // Save to file
@@ -130,7 +133,7 @@ public class OpenFaceExtractor : MonoBehaviour
 
                     // Now load the Texture2d into the target RenderTexture
                     var lastActive = RenderTexture.active;
-                    targetTexture = new RenderTexture(tex.width, tex.height, 24);
+                    targetTexture = new RenderTexture(tex.width, tex.height, 32, GraphicsFormat.R8G8B8A8_UNorm);
                     RenderTexture.active = targetTexture;
                     // Copy your texture ref to the render texture
                     Graphics.Blit(tex, targetTexture);
@@ -140,6 +143,10 @@ public class OpenFaceExtractor : MonoBehaviour
                 {
                     targetTexture = sourceTexture;
                 }
+            }
+            else
+            {
+                targetTexture = sourceTexture;
             }
         }
     }

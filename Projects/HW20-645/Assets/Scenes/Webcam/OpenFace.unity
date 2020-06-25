@@ -490,13 +490,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 626995034}
-  m_LocalRotation: {x: 0, y: 0.70710677, z: -0.70710677, w: 0}
+  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: -0.9495125, y: 6.3, z: 5}
-  m_LocalScale: {x: 1.3333334, y: 1, z: 1}
+  m_LocalScale: {x: 1.6, y: 1, z: 0.9}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 8
-  m_LocalEulerAnglesHint: {x: -270, y: -90, z: 90}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!1 &1032710338
 GameObject:
   m_ObjectHideFlags: 0
@@ -781,8 +781,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetTexture: {fileID: 8400000, guid: 944be8ae1679eb2449c37cd06ca472d0, type: 2}
-  width: 640
-  height: 480
+  width: 1920
+  height: 1080
   fps: 30
   shader: {fileID: 7200000, guid: e78a337c1a8c0fa4ab1cfa2d39886c6b, type: 3}
   swizzleChannels: 0
@@ -855,13 +855,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1147272981}
-  m_LocalRotation: {x: 0, y: 0.70710677, z: -0.70710677, w: 0}
+  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: -0.9495125, y: -4.28, z: 4.9661493}
-  m_LocalScale: {x: 1.3333334, y: 1, z: 1}
+  m_LocalScale: {x: 1.6, y: 1, z: 0.9}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 6
-  m_LocalEulerAnglesHint: {x: -270, y: -90, z: 90}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!114 &1147272987
 MonoBehaviour:
   m_ObjectHideFlags: 0
