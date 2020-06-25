@@ -88,6 +88,12 @@ public class OpenFaceExtractor : MonoBehaviour
     //public bool flipWebcamImage;
     public RenderTexture sourceTexture;
     public RenderTexture targetTexture;
+    public bool writeOpenFaceImages = false;
+    
+    // Status info in inspector
+    public float frameRateFPS;
+    private DateTime lastRunTime = DateTime.Now;
+    public int numberFacesFound = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -101,34 +107,49 @@ public class OpenFaceExtractor : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {
+    {    
         // Get the facial recognition features
         if (sourceTexture != null)
         {
             Texture2D tex = sourceTexture.toTexture2D();
+            
+            if (writeOpenFaceImages)
+            {
+                byte[] bytes = tex.EncodeToPNG();
+                File.WriteAllBytes(Application.dataPath + $"/Captures/OpenFaceToProcess_{Time.frameCount}.png", bytes);
+            }
+            
             var pixels = tex.GetRawTextureData();
+            
             StringBuilder sb = new StringBuilder(65536);
             var result = UnityOpenFaceWrapper.OpenFaceGetFeatures(pixels, tex.width, tex.height, sb, sb.Capacity);
             if (sb.ToString() != "")
             {
                 // Parse JSON
                 var openFaceData = JsonUtility.FromJson<OpenFaceJSONData>(sb.ToString());
-                var countFaces = openFaceData.faces == null ? 0 : openFaceData.faces.Count;
+                numberFacesFound = openFaceData.faces == null ? 0 : openFaceData.faces.Count;
                 //Debug.LogWarning($"Found {countFaces} faces in the image.");
                 
                 // Draw something on the texture
-                if (countFaces == 1 && openFaceData.faces[0].landmarks.success)
+                if (numberFacesFound == 1 && openFaceData.faces[0].landmarks.success)
                 {
+                    // TODO: draw circles for all landmarks
+                    foreach (var landmark in openFaceData.faces[0].landmarks.landmarks2d)
+                    {
+                        landmark.y = tex.height - landmark.y;
+                        tex.DrawCircle(Color.yellow, (int)landmark.x, (int)landmark.y, 2);
+                    }
+                    
                     // See https://github.com/TadasBaltrusaitis/OpenFace/wiki/Output-Format for landmark IDs
                     var landmarkNoseTip = openFaceData.faces[0].landmarks.landmarks2d[33];
+                    //landmarkNoseTip.y = tex.height - landmarkNoseTip.y; // don't flip this twice!
                     tex.DrawCircle(Color.red, (int)landmarkNoseTip.x, (int)landmarkNoseTip.y, 30);
                     
                     // Save to file
-                    bool writeToFile = false;
-                    if (writeToFile)
+                    if (writeOpenFaceImages)
                     {
                         byte[] bytes = tex.EncodeToPNG();
-                        File.WriteAllBytes(Application.dataPath + "/../Capture.png", bytes);
+                        File.WriteAllBytes(Application.dataPath + $"/Captures/OpenFaceEdited_{Time.frameCount}.png", bytes);
                     }
 
                     // Now load the Texture2d into the target RenderTexture
@@ -148,6 +169,15 @@ public class OpenFaceExtractor : MonoBehaviour
             {
                 targetTexture = sourceTexture;
             }
+            
+            // Update tracking FPS
+            var newTime = DateTime.Now;
+            frameRateFPS = 1000.0f / (newTime - lastRunTime).Milliseconds;
+            lastRunTime = newTime;
+        }
+        else
+        {
+            numberFacesFound = 0;
         }
     }
 
