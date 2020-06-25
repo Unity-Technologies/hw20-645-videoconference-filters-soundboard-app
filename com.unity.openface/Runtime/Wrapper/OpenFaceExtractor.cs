@@ -89,6 +89,7 @@ public class OpenFaceExtractor : MonoBehaviour
     public RenderTexture sourceTexture;
     public RenderTexture targetTexture;
     public bool writeOpenFaceImages = false;
+    public bool drawLandmarks = true;
     
     // Status info in inspector
     public float frameRateFPS;
@@ -103,6 +104,24 @@ public class OpenFaceExtractor : MonoBehaviour
         var result = UnityOpenFaceWrapper.OpenFaceSetup(OpenFaceStuffPath);
         if (!result)
             Debug.LogError($"Error setting up OpenFace wrapper");
+    }
+
+    private void DrawInTexture(Texture2D tex, List<OpenFaceLandmark2D> landmarks2d)
+    {
+        // Update Y axis because OpenFace flips the image
+        foreach (var landmark in landmarks2d)
+            landmark.y = tex.height - landmark.y;
+
+        if (drawLandmarks)
+        {
+            foreach (var landmark in landmarks2d)
+                tex.DrawCircle(Color.yellow, (int)landmark.x, (int)landmark.y, 10);
+        }
+                    
+        // Draw nose
+        // See https://github.com/TadasBaltrusaitis/OpenFace/wiki/Output-Format for landmark IDs
+        var landmarkNoseTip = landmarks2d[33];
+        tex.DrawCircle(Color.red, (int)landmarkNoseTip.x, (int)landmarkNoseTip.y, 60);
     }
 
     // Update is called once per frame
@@ -133,17 +152,27 @@ public class OpenFaceExtractor : MonoBehaviour
                 // Draw something on the texture
                 if (numberFacesFound == 1 && openFaceData.faces[0].landmarks.success)
                 {
-                    // TODO: draw circles for all landmarks
+                    /*
+                    // Update Y axis because OpenFace flips the image
                     foreach (var landmark in openFaceData.faces[0].landmarks.landmarks2d)
                     {
                         landmark.y = tex.height - landmark.y;
-                        tex.DrawCircle(Color.yellow, (int)landmark.x, (int)landmark.y, 2);
+                    }
+
+                    if (drawLandmarks)
+                    {
+                        foreach (var landmark in openFaceData.faces[0].landmarks.landmarks2d)
+                        {
+                            tex.DrawCircle(Color.yellow, (int)landmark.x, (int)landmark.y, 2);
+                        }
                     }
                     
+                    // Draw nose
                     // See https://github.com/TadasBaltrusaitis/OpenFace/wiki/Output-Format for landmark IDs
                     var landmarkNoseTip = openFaceData.faces[0].landmarks.landmarks2d[33];
-                    //landmarkNoseTip.y = tex.height - landmarkNoseTip.y; // don't flip this twice!
                     tex.DrawCircle(Color.red, (int)landmarkNoseTip.x, (int)landmarkNoseTip.y, 30);
+                    */
+                    DrawInTexture(tex, openFaceData.faces[0].landmarks.landmarks2d);
                     
                     // Save to file
                     if (writeOpenFaceImages)
@@ -152,22 +181,27 @@ public class OpenFaceExtractor : MonoBehaviour
                         File.WriteAllBytes(Application.dataPath + $"/Captures/OpenFaceEdited_{Time.frameCount}.png", bytes);
                     }
 
+                    tex.Apply();
                     // Now load the Texture2d into the target RenderTexture
                     var lastActive = RenderTexture.active;
-                    targetTexture = new RenderTexture(tex.width, tex.height, 32, GraphicsFormat.R8G8B8A8_UNorm);
+                    //targetTexture = new RenderTexture(tex.width, tex.height, 32, GraphicsFormat.R8G8B8A8_UNorm);
                     RenderTexture.active = targetTexture;
                     // Copy your texture ref to the render texture
                     Graphics.Blit(tex, targetTexture);
                     RenderTexture.active = lastActive;
+                    
+                    // Draw into targetTexture
                 }
                 else
                 {
-                    targetTexture = sourceTexture;
+                    Graphics.Blit(sourceTexture, targetTexture);
+                    //targetTexture = sourceTexture;
                 }
             }
             else
             {
-                targetTexture = sourceTexture;
+                Graphics.Blit(sourceTexture, targetTexture);
+                //targetTexture = sourceTexture;
             }
             
             // Update tracking FPS
