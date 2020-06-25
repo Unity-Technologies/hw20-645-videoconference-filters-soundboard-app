@@ -14,7 +14,10 @@ public class WebcamGrabber : MonoBehaviour
     public bool swizzleChannels = false;
 
     public Renderer mesh = null;
-    private string property = "_Main_tex";
+    public string property = "_BaseColorMap";
+
+
+    public int CameraIndex = 0;
     void Start()
     {
         tempTexture = new RenderTexture(width, height, 24);
@@ -51,11 +54,21 @@ public class WebcamGrabber : MonoBehaviour
     {
         if (webcamTexture != null && webcamTexture.isPlaying)
         {
+            
             webcamTexture.Stop();
         }
         WebCamDevice[] devices = WebCamTexture.devices;
+        for (int i = 0; i < devices.Length; i++)
+        {
+            if (!devices[i].name.Contains("NDI"))
+            {
+                CameraIndex = i;
+                
+            }
 
-        webcamTexture = new WebCamTexture(devices[0].name, this.width, this.height, this.fps);
+        }
+
+        webcamTexture = new WebCamTexture(devices[CameraIndex].name, this.width, this.height, this.fps);
         webcamTexture.Play();
     }
 }
