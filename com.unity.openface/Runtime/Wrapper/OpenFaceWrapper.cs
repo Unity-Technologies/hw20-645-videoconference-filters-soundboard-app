@@ -14,7 +14,7 @@ public struct OpenFaceWrapperInfo
 internal struct UnityOpenFaceWrapper
 {
     [DllImport(OpenFaceWrapperInfo.LibraryPath)]
-    public static extern bool OpenFaceSetup();
+    public static extern bool OpenFaceSetup(string exePath);
     
     [DllImport(OpenFaceWrapperInfo.LibraryPath)]
     public static extern bool OpenFaceGetFeatures(byte[] pixels, int width, int height, StringBuilder jsonData, int jsonDataLength);

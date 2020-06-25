@@ -89,7 +89,8 @@ public class OpenFaceExtractor : MonoBehaviour
     void Start()
     {
         // Test call
-        var result = UnityOpenFaceWrapper.OpenFaceSetup();
+        string OpenFaceStuffPath = Application.dataPath + "/../../../com.unity.openface/OpenFace/model"; // TODO: find another less hacky way
+        var result = UnityOpenFaceWrapper.OpenFaceSetup(OpenFaceStuffPath);
         if (!result)
             Debug.LogError($"Error setting up OpenFace wrapper");
     }
@@ -112,7 +113,7 @@ public class OpenFaceExtractor : MonoBehaviour
                 //Debug.LogWarning($"Found {countFaces} faces in the image.");
                 
                 // Draw something on the texture
-                if (countFaces == 1)
+                if (countFaces == 1 && openFaceData.faces[0].landmarks.success)
                 {
                     // See https://github.com/TadasBaltrusaitis/OpenFace/wiki/Output-Format for landmark IDs
                     var landmarkNoseTip = openFaceData.faces[0].landmarks.landmarks2d[33];
@@ -126,10 +127,10 @@ public class OpenFaceExtractor : MonoBehaviour
                         byte[] bytes = tex.EncodeToPNG();
                         File.WriteAllBytes(Application.dataPath + "/../Capture.png", bytes);
                     }
-                    
+
                     // Now load the Texture2d into the target RenderTexture
                     var lastActive = RenderTexture.active;
-                    targetTexture = new RenderTexture(tex.width, tex.height, 0);
+                    targetTexture = new RenderTexture(tex.width, tex.height, 24);
                     RenderTexture.active = targetTexture;
                     // Copy your texture ref to the render texture
                     Graphics.Blit(tex, targetTexture);

@@ -33,3 +33,7 @@ Projects/HW_shader_VFX_Zoom/Assembly-CSharp-Editor.csproj
 Projects/HW_shader_VFX_Zoom/HW_shader_VFX_Zoom.sln
 Projects/notHDRP_HW_demo/notHDRP_HW_demo.sln
 *.csproj
+/com.unity.openface/OpenFace/model/patch_experts/cen_patches_0.50_of.dat
+/com.unity.openface/OpenFace/model/patch_experts/cen_patches_1.00_of.dat
+/com.unity.openface/OpenFace/model/patch_experts/cen_patches_0.25_of.dat
+/com.unity.openface/OpenFace/model/patch_experts/cen_patches_0.35_of.dat
