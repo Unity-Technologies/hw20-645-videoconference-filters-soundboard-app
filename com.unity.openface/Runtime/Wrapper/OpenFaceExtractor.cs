@@ -62,11 +62,21 @@ public class OpenFaceLandmark2D
 }
 
 [Serializable]
+// A single landmark in 2D coordinates
+public class OpenFaceLandmark3D
+{
+    public double x;
+    public double y;
+    public double z;
+}
+
+[Serializable]
 // All the landmark info
 public class OpenFaceLandmarks
 {
     public bool success = false;
     public List<OpenFaceLandmark2D> landmarks2d;
+    public List<OpenFaceLandmark3D> landmarks3d;
 }
 
 [Serializable]
@@ -89,7 +99,10 @@ public class OpenFaceExtractor : MonoBehaviour
     public RenderTexture sourceTexture;
     public RenderTexture targetTexture;
     public bool writeOpenFaceImages = false;
-    public bool drawLandmarks = true;
+    public bool drawLandmarksIn2D = true;
+    public bool drawLandmarksIn3D = false;
+
+    private List<GameObject> faceIn3D = new List<GameObject>(); 
     
     // Status info in inspector
     public float frameRateFPS;
@@ -104,15 +117,22 @@ public class OpenFaceExtractor : MonoBehaviour
         var result = UnityOpenFaceWrapper.OpenFaceSetup(OpenFaceStuffPath);
         if (!result)
             Debug.LogError($"Error setting up OpenFace wrapper");
+
+        for (int i = 0; i < 68; i++) // num available landmarks
+        {
+            GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            faceIn3D.Add(sphere);
+        }
     }
 
+    // Draw stuff in the 2D image
     private void DrawInTexture(Texture2D tex, List<OpenFaceLandmark2D> landmarks2d)
     {
         // Update Y axis because OpenFace flips the image
         foreach (var landmark in landmarks2d)
             landmark.y = tex.height - landmark.y;
 
-        if (drawLandmarks)
+        if (drawLandmarksIn2D)
         {
             foreach (var landmark in landmarks2d)
                 tex.DrawCircle(Color.yellow, (int)landmark.x, (int)landmark.y, 10);
@@ -122,6 +142,16 @@ public class OpenFaceExtractor : MonoBehaviour
         // See https://github.com/TadasBaltrusaitis/OpenFace/wiki/Output-Format for landmark IDs
         var landmarkNoseTip = landmarks2d[33];
         tex.DrawCircle(Color.red, (int)landmarkNoseTip.x, (int)landmarkNoseTip.y, 60);
+    }
+
+    // Draw in 3D in Unity
+    private void DrawIn3D(List<OpenFaceLandmark3D> landmarks3d)
+    {
+        for (int i=0; i < landmarks3d.Count; i++)
+        {
+            var landmark = landmarks3d[i];
+            faceIn3D[i].transform.position = new Vector3((float)landmark.x, (float)landmark.y, (float)landmark.z);   
+        }
     }
 
     // Update is called once per frame
@@ -152,27 +182,11 @@ public class OpenFaceExtractor : MonoBehaviour
                 // Draw something on the texture
                 if (numberFacesFound == 1 && openFaceData.faces[0].landmarks.success)
                 {
-                    /*
-                    // Update Y axis because OpenFace flips the image
-                    foreach (var landmark in openFaceData.faces[0].landmarks.landmarks2d)
-                    {
-                        landmark.y = tex.height - landmark.y;
-                    }
-
-                    if (drawLandmarks)
-                    {
-                        foreach (var landmark in openFaceData.faces[0].landmarks.landmarks2d)
-                        {
-                            tex.DrawCircle(Color.yellow, (int)landmark.x, (int)landmark.y, 2);
-                        }
-                    }
-                    
-                    // Draw nose
-                    // See https://github.com/TadasBaltrusaitis/OpenFace/wiki/Output-Format for landmark IDs
-                    var landmarkNoseTip = openFaceData.faces[0].landmarks.landmarks2d[33];
-                    tex.DrawCircle(Color.red, (int)landmarkNoseTip.x, (int)landmarkNoseTip.y, 30);
-                    */
                     DrawInTexture(tex, openFaceData.faces[0].landmarks.landmarks2d);
+                    
+                    // Draw in 3D;\
+                    if (drawLandmarksIn3D)
+                        DrawIn3D(openFaceData.faces[0].landmarks.landmarks3d);
                     
                     // Save to file
                     if (writeOpenFaceImages)
