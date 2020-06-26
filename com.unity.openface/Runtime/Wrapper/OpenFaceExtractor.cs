@@ -101,6 +101,12 @@ public class OpenFaceExtractor : MonoBehaviour
     public bool writeOpenFaceImages = false;
     public bool drawLandmarksIn2D = true;
     public bool drawLandmarksIn3D = false;
+    public bool drawClownFaceIn2D = false;
+    public bool includeWebcamFeed = true;
+
+    public Vector3 rotation;
+    public float scale  = 0.1f;
+    public Vector3 translation;
 
     private List<GameObject> faceIn3D = new List<GameObject>(); 
     
@@ -121,7 +127,81 @@ public class OpenFaceExtractor : MonoBehaviour
         for (int i = 0; i < 68; i++) // num available landmarks
         {
             GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            sphere.name = $"Landmark_{i}";
+            
+            // Different colours for different landmarks
+            
+            //create a new material
+            var materialColored = new Material(Shader.Find("Diffuse"));
+            if (i <= 16)
+            {
+                // Chin
+                materialColored.color = Color.blue;
+            }
+            else if (i <= 26)
+            {
+                // Eyebrows
+                materialColored.color = Color.cyan;
+            }
+            else if (i <= 35)
+            {
+                // Nose
+                materialColored.color = Color.green;
+            }
+            else if (i <= 45)
+            {
+                // Eyes
+                materialColored.color = Color.yellow;
+            }
+            else
+            {
+                // Nose
+                materialColored.color = Color.red;
+            }
+
+            sphere.GetComponent<Renderer>().material = materialColored;
             faceIn3D.Add(sphere);
+        }
+        
+        drawLandmarksIn2D = false;
+        drawClownFaceIn2D = true;
+        includeWebcamFeed = false;
+    }
+
+    void DrawClownFace(Texture2D tex, List<OpenFaceLandmark2D> landmarks2d)
+    {
+        // Draw eyebrows
+        for (int i = 17; i <= 26; i++)
+        {
+            tex.DrawCircle(Color.gray, (int)landmarks2d[i].x, (int)landmarks2d[i].y, 8);
+        }
+        
+        // Draw mouth
+        for (int i = 48; i <= 67; i++)
+        {
+            tex.DrawCircle(Color.magenta, (int)landmarks2d[i].x, (int)landmarks2d[i].y, 8);
+        }
+        
+        // Draw chin
+        for (int i = 0; i <= 16; i++)
+        {
+            tex.DrawCircle(Color.white, (int)landmarks2d[i].x, (int)landmarks2d[i].y, 8);
+        }
+        
+        // See https://github.com/TadasBaltrusaitis/OpenFace/wiki/Output-Format for landmark IDs
+        // Draw nose
+        var landmarkNoseTip = landmarks2d[33];
+        tex.DrawCircle(Color.red, (int)landmarkNoseTip.x, (int)landmarkNoseTip.y, 60);
+        
+        // 'Left' eye
+        for (int i = 36; i <= 41; i++)
+        {
+            tex.DrawCircle(Color.white, (int)landmarks2d[i].x, (int)landmarks2d[i].y, 8);
+        }
+        // 'Right' eye
+        for (int i = 42; i <= 47; i++)
+        {
+            tex.DrawCircle(Color.white, (int)landmarks2d[i].x, (int)landmarks2d[i].y, 8);
         }
     }
 
@@ -137,11 +217,11 @@ public class OpenFaceExtractor : MonoBehaviour
             foreach (var landmark in landmarks2d)
                 tex.DrawCircle(Color.yellow, (int)landmark.x, (int)landmark.y, 10);
         }
-                    
-        // Draw nose
-        // See https://github.com/TadasBaltrusaitis/OpenFace/wiki/Output-Format for landmark IDs
-        var landmarkNoseTip = landmarks2d[33];
-        tex.DrawCircle(Color.red, (int)landmarkNoseTip.x, (int)landmarkNoseTip.y, 60);
+
+        if (drawClownFaceIn2D)
+        {
+            DrawClownFace(tex, landmarks2d);
+        }
     }
 
     // Draw in 3D in Unity
@@ -150,13 +230,20 @@ public class OpenFaceExtractor : MonoBehaviour
         for (int i=0; i < landmarks3d.Count; i++)
         {
             var landmark = landmarks3d[i];
-            faceIn3D[i].transform.position = new Vector3((float)landmark.x, (float)landmark.y, (float)landmark.z);   
+            faceIn3D[i].transform.position = new Vector3((float)landmark.x, (float)landmark.y, (float)landmark.z);
         }
     }
 
     // Update is called once per frame
     void Update()
-    {    
+    {
+        if (Input.GetKeyDown("space"))
+        {
+            // Toggle
+            drawLandmarksIn2D = !drawLandmarksIn2D;
+            drawClownFaceIn2D = !drawClownFaceIn2D;
+            includeWebcamFeed = !includeWebcamFeed;
+        }
         // Get the facial recognition features
         if (sourceTexture != null)
         {
@@ -172,6 +259,7 @@ public class OpenFaceExtractor : MonoBehaviour
             
             StringBuilder sb = new StringBuilder(65536);
             var result = UnityOpenFaceWrapper.OpenFaceGetFeatures(pixels, tex.width, tex.height, sb, sb.Capacity);
+            
             if (sb.ToString() != "")
             {
                 // Parse JSON
@@ -179,37 +267,44 @@ public class OpenFaceExtractor : MonoBehaviour
                 numberFacesFound = openFaceData.faces == null ? 0 : openFaceData.faces.Count;
                 //Debug.LogWarning($"Found {countFaces} faces in the image.");
                 
-                // Draw something on the texture
-                if (numberFacesFound == 1 && openFaceData.faces[0].landmarks.success)
+                if (!includeWebcamFeed)
                 {
-                    DrawInTexture(tex, openFaceData.faces[0].landmarks.landmarks2d);
-                    
-                    // Draw in 3D;\
-                    if (drawLandmarksIn3D)
-                        DrawIn3D(openFaceData.faces[0].landmarks.landmarks3d);
-                    
-                    // Save to file
-                    if (writeOpenFaceImages)
-                    {
-                        byte[] bytes = tex.EncodeToPNG();
-                        File.WriteAllBytes(Application.dataPath + $"/Captures/OpenFaceEdited_{Time.frameCount}.png", bytes);
-                    }
-
-                    tex.Apply();
-                    // Now load the Texture2d into the target RenderTexture
-                    var lastActive = RenderTexture.active;
-                    //targetTexture = new RenderTexture(tex.width, tex.height, 32, GraphicsFormat.R8G8B8A8_UNorm);
-                    RenderTexture.active = targetTexture;
-                    // Copy your texture ref to the render texture
-                    Graphics.Blit(tex, targetTexture);
-                    RenderTexture.active = lastActive;
-                    
-                    // Draw into targetTexture
+                    Color fillColor = Color.clear;
+                    fillColor.a = 0.0f;
+                    Color[] fillPixels = new Color[tex.width * tex.height];
+                    for (int i = 0; i < fillPixels.Length; i++)
+                        fillPixels[i] = fillColor;
+                    tex.SetPixels(fillPixels);
                 }
-                else
+                // Draw something on the texture
+                foreach (var face in openFaceData.faces)
                 {
-                    Graphics.Blit(sourceTexture, targetTexture);
-                    //targetTexture = sourceTexture;
+                    if (openFaceData.faces[0].landmarks.success)
+                    {
+                        DrawInTexture(tex, openFaceData.faces[0].landmarks.landmarks2d);
+                    
+                        // Draw in 3D
+                        if (drawLandmarksIn3D)
+                            DrawIn3D(openFaceData.faces[0].landmarks.landmarks3d);
+                    
+                        // Save to file
+                        if (writeOpenFaceImages)
+                        {
+                            byte[] bytes = tex.EncodeToPNG();
+                            File.WriteAllBytes(Application.dataPath + $"/Captures/OpenFaceEdited_{Time.frameCount}.png", bytes);
+                        }
+
+                        tex.Apply();
+                        // Now load the Texture2d into the target RenderTexture
+                        var lastActive = RenderTexture.active;
+                        //targetTexture = new RenderTexture(tex.width, tex.height, 32, GraphicsFormat.R8G8B8A8_UNorm);
+                        RenderTexture.active = targetTexture;
+                        // Copy your texture ref to the render texture
+                        Graphics.Blit(tex, targetTexture);
+                        RenderTexture.active = lastActive;
+                    
+                        // Draw into targetTexture
+                    }
                 }
             }
             else
@@ -226,6 +321,29 @@ public class OpenFaceExtractor : MonoBehaviour
         else
         {
             numberFacesFound = 0;
+        }
+        
+        // Apply transformations
+        for (int i=0; i < faceIn3D.Count; i++)
+        {
+            faceIn3D[i].transform.position *= scale;
+        }
+
+        if (!drawLandmarksIn3D)
+        {
+            // Hide objects
+            for (int i=0; i < faceIn3D.Count; i++)
+            {
+                faceIn3D[i].SetActive(false);
+            }
+        }
+        else
+        {
+            // Show objects
+            for (int i=0; i < faceIn3D.Count; i++)
+            {
+                faceIn3D[i].SetActive(true);
+            }
         }
     }
 

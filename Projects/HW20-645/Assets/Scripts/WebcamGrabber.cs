@@ -55,7 +55,7 @@ public class WebcamGrabber : MonoBehaviour
         }
         WebCamDevice[] devices = WebCamTexture.devices;
 
-        webcamTexture = new WebCamTexture(devices[0].name, this.width, this.height, this.fps);
+        webcamTexture = new WebCamTexture(devices[1].name, this.width, this.height, this.fps);
         webcamTexture.Play();
     }
 }
